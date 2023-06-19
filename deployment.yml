@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-monitor-deployment
+spec:
+  selector:
+    matchLabels:
+      app: client-monitor-pod
+  template:
+    metadata:
+      labels:
+        app: client-monitor-pod
+    spec:
+    
+      containers:
+      - name: client-monitor-container
+        image: client:v1
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: response-volume
+            mountPath: /app/response
+        env:
+            - name: ACTION
+              value: "dump"
+            - name: PODNAME
+              value: "deploy-exampleapp-79768db6bb-dsrsm"
+            - name: PID
+              value: "1"
+            - name: UID
+              value: "NO_UID"
+            - name: NAME
+              value: "NO_NAME"
+            - name: DURATION
+              value: "NO_DURATION"
+            - name: EGRESS_PROVIDER
+              value: "NO_EGRESS_PROVIDER"
+            - name: TAGS
+              value: "NO_TAG"
+      volumes: 
+        - name: response-volume
+          emptyDir: {}
+          
