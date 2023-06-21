@@ -8,15 +8,15 @@ import datetime
 
 BASE_URL = 'http://'
 
-def get_pod_ip_and_port_by_name(pod_name):
+def get_pod_ip_and_port_by_name(pod_name, namespace):
     # Load the in-cluster Kubernetes configuration
     config.load_incluster_config()
 
     # Create the Kubernetes API client
     v1 = client.CoreV1Api()
 
-    # Retrieve the pod information by name
-    pod = v1.read_namespaced_pod(pod_name, 'default')
+    # Retrieve the pod information by name and namespace
+    pod = v1.read_namespaced_pod(pod_name, namespace)
     pod_ip = pod.status.pod_ip
 
     # Retrieve the port number from the environment variable
@@ -35,8 +35,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
 
-def trigger_monitor_action(action, pod_name, pid=None, uid=None, name=None,  duration=None, egressProvider=None, tags=None):
-    pod_ip, port_number = get_pod_ip_and_port_by_name(pod_name)
+def trigger_monitor_action(action, pod_name, namespace, pid=None, uid=None, name=None,  duration=None, egressProvider=None, tags=None):
+    pod_ip, port_number = get_pod_ip_and_port_by_name(pod_name, namespace)
     api_url = f"{BASE_URL.rstrip('/')}//{pod_ip}:{port_number}/{action.lstrip('/')}"
                  
     # Append pid as a query parameter if provided
@@ -68,6 +68,7 @@ def trigger_monitor_action(action, pod_name, pid=None, uid=None, name=None,  dur
     logger.info(f"Pod IP Address: {pod_ip}")
     logger.info(f".NET Monitor URL Port: {port_number}")
     logger.info(f"Action: {action}")
+    logger.info(f"Namespace: {namespace}")
     # Check if any parameters are provided
     if pid is None and uid is None and name is None and duration is None and egressProvider is None and tags is None:
         logging.info("No additional parameters provided.")
@@ -119,6 +120,7 @@ def main():
     parser = argparse.ArgumentParser(description='Trigger .NET Monitor actions.')
     parser.add_argument('--action', required=True, help='Action to perform in the .NET Monitor')
     parser.add_argument('--pod-name', required=True, help='Name of the pod')
+    parser.add_argument('--namespace', required=True, help='Namespace of the pod')
     parser.add_argument('--pid', help='Process ID')
     parser.add_argument('--uid', help='UID')
     parser.add_argument('--name', help='Name')
@@ -152,6 +154,7 @@ def main():
     trigger_monitor_action(
         args.action,
         args.pod_name,
+        args.namespace,
         pid=pid,
         duration=duration,
         uid=uid,

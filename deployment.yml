@@ -29,9 +29,11 @@ spec:
             - name: ACTION
               value: "dump"
             - name: PODNAME
-              value: "deploy-exampleapp-79768db6bb-dsrsm"
+              value: "test-namespace-deploy-764965b55f-79l9g"
+            - name: NAMESPACE 
+              value: "dev"
             - name: PID
-              value: "1"
+              value: "NO_PID"
             - name: UID
               value: "NO_UID"
             - name: NAME

@@ -21,6 +21,9 @@ ENV ACTION=${ACTION:-"dump"}
 ARG PODNAME
 ENV PODNAME=${PODNAME:-"NO_PODNAME"}
 
+ARG NAMESPACE
+ENV NAMESPACE=${NAMESPACE:-"NAMESPACE"}
+
 ARG PID
 ENV PID=${PID:-"NO_PID"}
 
@@ -50,4 +53,4 @@ RUN chmod -R 777 /app
 USER 1000
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["sh", "-c" ,"python monitor_client.py --action $ACTION --pod-name $PODNAME --pid $PID --uid $UID --name $NAME --duration $DURATION --egressProvider $EGRESS_PROVIDER --tags $TAG "]
+CMD ["sh", "-c" ,"python monitor_client.py --action $ACTION --pod-name $PODNAME --namespace $NAMESPACE --pid $PID --uid $UID --name $NAME --duration $DURATION --egressProvider $EGRESS_PROVIDER --tags $TAG "]
