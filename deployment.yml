@@ -33,7 +33,7 @@ spec:
             - name: NAMESPACE 
               value: "dev"
             - name: PID
-              value: "NO_PID"
+              value: "1"
             - name: UID
               value: "NO_UID"
             - name: NAME
@@ -47,4 +47,33 @@ spec:
       volumes: 
         - name: response-volume
           emptyDir: {}
-          
+
+
+# this section is created to give rbac(role based access control) on our cluster so that we can fetch pod ip address.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: dev # your namespace
+rules:
+- apiGroups: [ "" ]
+  resources: [ "pods", "services"]
+  verbs: [ "get", "list", "watch"]
+- apiGroups: [ "extensions" ]
+  resources: [ "deployments" ]
+  verbs: [ "get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-pod-reader
+  namespace: dev # your namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-reader
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
