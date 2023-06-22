@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: client-monitor-deployment
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: client-monitor-pod
@@ -11,26 +12,25 @@ spec:
       labels:
         app: client-monitor-pod
     spec:
-    
       containers:
-      - name: client-monitor-container
-        image: client:v1
-        imagePullPolicy: Never
-        resources:
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        ports:
-        - containerPort: 80
-        volumeMounts:
-          - name: response-volume
-            mountPath: /app/response
-        env:
+        - name: client-monitor-container
+          image: client:v1
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: response-volume
+              mountPath: /app/response
+          env:
             - name: ACTION
               value: "dump"
             - name: PODNAME
               value: "test-namespace-deploy-764965b55f-79l9g"
-            - name: NAMESPACE 
+            - name: NAMESPACE
               value: "dev"
             - name: PID
               value: "1"
@@ -44,10 +44,9 @@ spec:
               value: "NO_EGRESS_PROVIDER"
             - name: TAGS
               value: "NO_TAG"
-      volumes: 
+      volumes:
         - name: response-volume
           emptyDir: {}
-
 
 # this section is created to give rbac(role based access control) on our cluster so that we can fetch pod ip address.
 ---
@@ -57,12 +56,12 @@ metadata:
   name: pod-reader
   namespace: dev # your namespace
 rules:
-- apiGroups: [ "" ]
-  resources: [ "pods", "services"]
-  verbs: [ "get", "list", "watch"]
-- apiGroups: [ "extensions" ]
-  resources: [ "deployments" ]
-  verbs: [ "get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -74,6 +73,6 @@ roleRef:
   kind: Role
   name: pod-reader
 subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: default
+  - kind: ServiceAccount
+    name: default
+    namespace: default
