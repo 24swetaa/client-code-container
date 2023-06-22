@@ -80,6 +80,23 @@ func TestGenerateJobManifestFile(t *testing.T) {
 			filePath:   "test-job4.yml",
 			expectFail: true,
 		},
+		{   // Test case 5: invalid file path
+			name: "invalid file path",
+			job: JobManifest{
+				Name:         "client-monitor-job",
+				Namespace:    "dev",
+				Action:       "dump",
+				PodName:      "test-namespace-deploy-764965b55f-79l9g",
+				PID:          "1",
+				UID:          "NO_UID",
+				NameOverride: "NO_NAME",
+				Duration:     "NO_DURATION",
+				Egress:       "NO_EGRESS_PROVIDER",
+				Tags:         "NO_TAG",
+			},
+			filePath:   "/test-folder/test-job5.yml",
+			expectFail: true,
+		},
 	}
 
 	for _, tc := range tests {
