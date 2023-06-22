@@ -6,41 +6,98 @@ import (
 )
 
 func TestGenerateJobManifestFile(t *testing.T) {
-	// Define the test case
-	job := JobManifest{
-		Name:      "client-monitor-job",
-		Namespace: "dev",
-		Action:    "dump",
-		PodName:   "test-namespace-deploy-764965b55f-79l9g",
-		PID:       "1",
-		UID:       "NO_UID",
-		NameOverride: "NO_NAME",
-		Duration:  "NO_DURATION",
-		Egress:    "NO_EGRESS_PROVIDER",
-		Tags:      "NO_TAG",
+	tests := []struct {
+		name       string
+		job        JobManifest
+		filePath   string
+		expectFail bool
+	}{
+		{   // Test case 1: vaild inputs
+			name: "Valid inputs",
+			job: JobManifest{
+				Name:         "client-monitor-job",
+				Namespace:    "dev",
+				Action:       "dump",
+				PodName:      "test-namespace-deploy-764965b55f-79l9g",
+				PID:          "1",
+				UID:          "NO_UID",
+				NameOverride: "NO_NAME",
+				Duration:     "NO_DURATION",
+				Egress:       "NO_EGRESS_PROVIDER",
+				Tags:         "NO_TAG",
+			},
+			filePath:   "test-job1.yml",
+			expectFail: false,
+		},
+		{   // Test case 2: invalid inputs with empty string
+			name: "Invalid inputs with empty name",
+			job: JobManifest{
+				Name:         "",
+				Namespace:    "dev",
+				Action:       "dump",
+				PodName:      "test-namespace-deploy-764965b55f-79l9g",
+				PID:          "1",
+				UID:          "NO_UID",
+				NameOverride: "NO_NAME",
+				Duration:     "NO_DURATION",
+				Egress:       "NO_EGRESS_PROVIDER",
+				Tags:         "NO_TAG",
+			},
+			filePath:   "test-job2.yml",
+			expectFail: true,
+		},
+		{   // Test case 3: invalid input
+			name: "Invalid inputs with empty pod name",
+			job: JobManifest{
+				Name:         "client-monitor-job",
+				Namespace:    "dev",
+				Action:       "dump",
+				PodName:      "",
+				PID:          "1",
+				UID:          "NO_UID",
+				NameOverride: "NO_NAME",
+				Duration:     "NO_DURATION",
+				Egress:       "NO_EGRESS_PROVIDER",
+				Tags:         "NO_TAG",
+			},
+			filePath:   "test-job3.yml",
+			expectFail: true,
+		},
+		{   // Test case 4: invalid input with long string length
+			name: "Boundary condition: Maximum length of Name",
+			job: JobManifest{
+				Name:         "client-monitor-job-with-a-very-long-name-that-exceeds-the-maximum-length-limit",
+				Namespace:    "dev",
+				Action:       "dump",
+				PodName:      "test-namespace-deploy-764965b55f-79l9g",
+				PID:          "1",
+				UID:          "NO_UID",
+				NameOverride: "NO_NAME",
+				Duration:     "NO_DURATION",
+				Egress:       "NO_EGRESS_PROVIDER",
+				Tags:         "NO_TAG",
+			},
+			filePath:   "test-job4.yml",
+			expectFail: true,
+		},
 	}
 
-	filePath := "test-job.yml"
+	for _, tc := range tests {
+		err := generateJobManifestFile(tc.job, tc.filePath)
+		defer os.Remove(tc.filePath)
 
-	// Call the function being tested
-	err := generateJobManifestFile(job, filePath)
-	defer os.Remove(filePath) // Clean up the created file after the test
-
-	// Check the test result
-	if err != nil {
-		t.Errorf("generateJobManifestFile returned an error: %s", err)
+		if tc.expectFail && err == nil {
+			t.Errorf("%s: Expected error but got none", tc.name)
+		} else if !tc.expectFail && err != nil {
+			t.Errorf("%s: Unexpected error: %v", tc.name, err)
+		}
 	}
-
-	// You can add more assertions here to verify the contents or properties of the generated file
 }
 
 func TestMain(m *testing.M) {
-	// Set up any test environment or configurations
 
 	// Run the tests
 	exitCode := m.Run()
-
-	// Clean up any resources after all tests are finished
 
 	// Exit with the proper exit code
 	os.Exit(exitCode)

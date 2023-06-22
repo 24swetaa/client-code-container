@@ -20,6 +20,86 @@ type JobManifest struct {
 }
 
 func generateJobManifestFile(job JobManifest, filePath string) error {
+	// Helper function for required field validation
+	validateRequiredField := func(field, value string) error {
+		if value == "" {
+			return fmt.Errorf("%s parameter is required", field)
+		}
+		return nil
+	}
+
+	// Validate the required fields
+	if err := validateRequiredField("Job name", job.Name); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Action", job.Action); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Namespace", job.Namespace); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Pod name", job.PodName); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Process ID", job.PID); err != nil {
+		return err
+	}
+	if err := validateRequiredField("UID", job.UID); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Name", job.NameOverride); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Duration", job.Duration); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Egress", job.Egress); err != nil {
+		return err
+	}
+	if err := validateRequiredField("Tags", job.Tags); err != nil {
+		return err
+	}
+
+	// Helper function for length validation
+	validateLength := func(field, value string) error {
+		if len(value) > 64 {
+			return fmt.Errorf("%s field exceeds the maximum length of 64 characters", field)
+		}
+		return nil
+	}
+
+	// Validate the length of each field
+	if err := validateLength("Name", job.Name); err != nil {
+		return err
+	}
+	if err := validateLength("Namespace", job.Namespace); err != nil {
+		return err
+	}
+	if err := validateLength("Action", job.Action); err != nil {
+		return err
+	}
+	if err := validateLength("PodName", job.PodName); err != nil {
+		return err
+	}
+	if err := validateLength("PID", job.PID); err != nil {
+		return err
+	}
+	if err := validateLength("UID", job.UID); err != nil {
+		return err
+	}
+	if err := validateLength("NameOverride", job.NameOverride); err != nil {
+		return err
+	}
+	if err := validateLength("Duration", job.Duration); err != nil {
+		return err
+	}
+	if err := validateLength("Egress", job.Egress); err != nil {
+		return err
+	}
+	if err := validateLength("Tags", job.Tags); err != nil {
+		return err
+	}
+
 	templateStr := `
 apiVersion: batch/v1
 kind: Job
